@@ -10,28 +10,23 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import make_scorer
 from xgboost import XGBClassifier
+import shap 
 
 # %%
 
+# look into hiearchical clustering and k-medoids 
+
+# for later, just use .isin() method for col list that you act want 
+
 # Load dataset
-df = pd.read_csv('ELSOcleaner.csv')
+# NOTE: changing between a different csv
+# df = pd.read_csv('ELSOcleaner.csv')
+df = pd.read_csv('elsoOI_tempML.csv')
 
-# Casting and Encoding
-non_binary_or_numeric = ['Race', 'Mode', 'SupType', 'PreRRT', 'PreECMOAKI', 'ID', 'PrimaryDiagnosis', 'Sex', 'Discontinuation', 'SurvECMO', 'SurvHosp', 'VADetc']
-for col in non_binary_or_numeric:
-    df[col] = df[col].astype('category')
-
-# One-Hot Encoding for categorical features
-df_encoded = pd.get_dummies(df, columns=['Race', 'Mode', 'SupType'], drop_first=True)
-
-# Label Encoding for binary features
-label_columns = ['CDH', 'PreRRT', 'PreECMOAKI']
-for col in label_columns:
-    le = LabelEncoder()
-    df_encoded[col] = le.fit_transform(df[col])
+# %%
 
 # Define features and target
-features = df_encoded.drop(columns=['RRTduringECMO', 'Sex', 'Discontinuation', 'SurvECMO', 'SurvHosp', 'VADetc', 'ID', 'PrimaryDiagnosis'])
+features = df.drop(columns=['RRTduringECMO', 'Unnamed: 0', 'Mode_Other', 'Race_Other', 'Sex_Unknown']) 
 X_data = features
 y_data = df['RRTduringECMO']
 X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(X_data, y_data, test_size=0.2, random_state=42)
@@ -96,6 +91,11 @@ accuracy = accuracy_score(y_test_data, y_pred_binary)
 print(f"Final accuracy: {accuracy:.4f}")
 
 # %%
+
+# %%
+
+# attempt to implement SHAP feature importance plots 
+
 def plot_feature_importances(model, X):
     if model:
         booster = model  # Booster object returned by xgb.train
@@ -115,3 +115,11 @@ def plot_feature_importances(model, X):
 
 print("Plotting feature importances for final model:")
 plot_feature_importances(bst, X_data)
+
+#%%
+import shap
+explainer = shap.TreeExplainer(bst)
+shap_value = explainer.shap_values(X_test_data)
+shap_values = explainer.shap_values(X_test_data)
+shap.summary_plot(shap_values, X_test_data, plot_type="bar")
+
