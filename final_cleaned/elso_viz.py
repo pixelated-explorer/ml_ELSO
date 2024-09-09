@@ -13,9 +13,13 @@ import seaborn as sns
 
 elsoDF = pd.read_csv('elsoOI.csv')
 
-elsoDF.head()
+# elsoDF.head()
+elsoDF.describe()
 
 # %%
+
+# NOTE: reduced patients from 9254 to 8277
+    # after removing outliers. 
 
 elsoDF = elsoDF.loc[elsoDF['Out'] == 0]
 
@@ -70,9 +74,7 @@ print(cov_matrix)
 
 # %%
 
-
-
-
+# NOTE: We dropped the rest of the outcomes here temporarily. 
 df_important = elsoDF.drop(columns=['iNO', 'HypoTerm', 'NMB', 'Plasmaph', 'CPR', 'CultPos', 'Outcome', 'LOSdays', 'VentDur', 'Hem', 'OIout', 'pHout', 'SBPout', 'Out'])
 # sns.heatmap(df_important, annot=True, cmap='coolwarm')
 
